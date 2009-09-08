@@ -135,16 +135,17 @@ void robot_print_pose( robot_t* rob )
 
 double length_normalize( double z, double zmax )
 {
-  if( z < 0 )
-    {
-      while( z < 0 )
-	z += zmax;
-    }
-  else
-    z = fmod( z, zmax );
-
+  while( z < 0 ) z += zmax;
+  while( z > zmax ) z -= zmax;
   return z; 
 } 
+
+double angle_normalize( double a )
+{
+  while( a < -M_PI ) a += 2.0*M_PI;
+  while( a >  M_PI ) a -= 2.0*M_PI;	 
+  return a;
+}
 
 void robot_update_pose( robot_t* rob )
 {
@@ -155,7 +156,7 @@ void robot_update_pose( robot_t* rob )
 
   rob->pose.x = length_normalize( rob->pose.x + dx, rob->world->size );
   rob->pose.y = length_normalize( rob->pose.y + dy, rob->world->size );
-  rob->pose.a = ANGLE_NORMALIZE( rob->pose.a + da );
+  rob->pose.a = angle_normalize( rob->pose.a + da );
 }
   
 void robot_update_pixels( robot_t* rob )
@@ -189,7 +190,7 @@ void robot_update_pixels( robot_t* rob )
       
       // discard if it's out of field of view 
       double absolute_heading = atan2( dy, dx );
-      double relative_heading = ANGLE_NORMALIZE((absolute_heading - rob->pose.a) + M_PI );
+      double relative_heading = angle_normalize((absolute_heading - rob->pose.a) + M_PI );
       if( fabs(relative_heading) > rob->fov/2.0   ) 
 	continue; 
 
@@ -267,29 +268,30 @@ void robot_draw( robot_t* rob )
 
   glCallList(displaylist);
 
-#if DRAW_SENSORS
-  // render the sensors
-  double rads_per_pixel = rob->fov / (double)rob->pixel_count;
-  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-  
-  int p; 
-  for( p=0; p<rob->pixel_count; p++ )
-    {
-      double angle = -rob->fov/2.0 + (p+0.5) * rads_per_pixel;
-      double dx1 = rob->pixels[p].range * cos(angle+rads_per_pixel/2.0);
-      double dy1 = rob->pixels[p].range * sin(angle+rads_per_pixel/2.0);
-      double dx2 = rob->pixels[p].range * cos(angle-rads_per_pixel/2.0);
-      double dy2 = rob->pixels[p].range * sin(angle-rads_per_pixel/2.0);
-      
-      glColor4f( 1,0,0, rob->pixels[p].color ? 0.2 : 0.05 );
-      
-      glBegin( GL_POLYGON );
-      glVertex2f( 0,0 );
-      glVertex2f( dx1, dy1 );
-      glVertex2f( dx2, dy2 );
-      glEnd();                  
-    }	  
-#endif
+  if( glut_world->data )
+	 {
+		// render the sensors
+		double rads_per_pixel = rob->fov / (double)rob->pixel_count;
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		
+		int p; 
+		for( p=0; p<rob->pixel_count; p++ )
+		  {
+			 double angle = -rob->fov/2.0 + (p+0.5) * rads_per_pixel;
+			 double dx1 = rob->pixels[p].range * cos(angle+rads_per_pixel/2.0);
+			 double dy1 = rob->pixels[p].range * sin(angle+rads_per_pixel/2.0);
+			 double dx2 = rob->pixels[p].range * cos(angle-rads_per_pixel/2.0);
+			 double dy2 = rob->pixels[p].range * sin(angle-rads_per_pixel/2.0);
+			 
+			 glColor4f( 1,0,0, rob->pixels[p].color ? 0.2 : 0.05 );
+			 
+			 glBegin( GL_POLYGON );
+			 glVertex2f( 0,0 );
+			 glVertex2f( dx1, dy1 );
+			 glVertex2f( dx2, dy2 );
+			 glEnd();                  
+		  }	  
+	 }
 
   glPopMatrix();
 }
@@ -299,15 +301,11 @@ void robot_draw( robot_t* rob )
 void idle_func( void )
 {
   world_update( glut_world );
+}
 
-  // tell GLUT we need to redraw the window  
-  static int interval=0;
-
-  if( ++interval % REDRAW_INTERVAL == 0 )
-    {
-      glutPostRedisplay(); 
-      interval=0;
-    }
+void timer_func( int dummy )
+{
+  glutPostRedisplay(); // force redraw
 }
 
 // draw the world - this is called whenever the window needs redrawn
@@ -315,23 +313,27 @@ void display_func( void )
 {
   
   glClear( GL_COLOR_BUFFER_BIT );
-
+  
   g_list_foreach( glut_world->robots, 
-		  (GFunc)robot_callback_wrapper, 
-		  robot_draw );  
+						(GFunc)robot_callback_wrapper, 
+						robot_draw );  
 
   glutSwapBuffers();
+
+  glutTimerFunc( 50, timer_func, 0 );
 }
+
 
 #endif
 
 
 world_t* world_create( int* argc,
-		       char** argv,
-		       double size, // area of the world
-		       double seconds, // number of seconds to simulate
-		       int updates_per_second, // updates per timestep
-		       int sleep_msec )
+							  char** argv,
+							  double size, // area of the world
+							  double seconds, // number of seconds to simulate
+							  int updates_per_second, // updates per timestep
+							  int sleep_msec, // sleep time per cycle
+							  int data ) //toggle data visualization
 {
   world_t* world = calloc( sizeof(world_t), 1 );
   world->seconds = 0;
@@ -339,6 +341,7 @@ world_t* world_create( int* argc,
   world->updates_per_second = updates_per_second;
   world->sleep_msec = sleep_msec;
   world->size = size;
+  world->data = data;
 
 #if GRAPHICS
   // initialize opengl graphics
@@ -349,6 +352,7 @@ world_t* world_create( int* argc,
   glutCreateWindow( "Universe" );
   glClearColor( 0.8,0.8,1.0,1.0 );
   glutDisplayFunc( display_func );
+  glutTimerFunc( 50, timer_func, 0 );
   glutIdleFunc( idle_func );
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glEnable( GL_BLEND );

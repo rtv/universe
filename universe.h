@@ -14,8 +14,8 @@
 // Convert degrees to radians
 #define DTOR(d) ((d) * M_PI / 180.0)
 
-// angle wrap-around constrains angle z in the range -PI to +PI
-#define ANGLE_NORMALIZE(z) atan2(sin(z), cos(z))
+/** Normalize an angle to within +/_ M_PI. */
+double angle_normalize( double a );
 
 typedef struct
 {
@@ -38,6 +38,7 @@ typedef struct
   double updates_per_second; // simulation time resolution
   int sleep_msec; // sleep for this many milliseconds per update cycle
   double size; // length of a side of the world, which is square.
+  int data; // sensor data visualization flag 
 } world_t;
 
 typedef struct robot
@@ -48,7 +49,7 @@ typedef struct robot
   int color;       // robot's body has this color
   double range;    // sensor detects objects up tp this maximum distance
   double fov;      // sensor detects objects within this angular
-		   // field-of-view about the current heading
+		             // field-of-view about the current heading
   double v_speed;  // current forward speed
   double w_speed;  // current angular speed (turn-rate)
 
@@ -84,11 +85,12 @@ robot_t* robot_create_random( world_t* world,
 
 // create a new world with these parameters
 world_t* world_create( int* argc,
-		       char** argv,
-		       double size, // world is size^2 units
-		       double seconds, // number of seconds to simulate
-		       int updates_per_second, // updates per timestep
-		       int sleep_msec );
+							  char** argv,
+							  double size, // world is size^2 units
+							  double seconds, // number of seconds to simulate
+							  int updates_per_second, // updates per timestep
+							  int sleep_msec, // sleep for this many milliseconds per update cycle
+							  int data ); // enable sensor data visualization
 
 void world_add_robot( world_t* world, robot_t* robot );
 
