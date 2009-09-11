@@ -1,98 +1,150 @@
 /****
-   universe.h
-   version 2
-   Richard Vaughan  
+	  universe.h
+	  version 2
+	  Richard Vaughan  
 ****/
+
+#include <vector>
+#include <list>
 
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> 
 
-// Convert radians to degrees
-#define RTOD(r) ((r) * 180.0 / M_PI)
-// Convert degrees to radians
-#define DTOR(d) ((d) * M_PI / 180.0)
+// handy iterator macro pair. Use FOR_EACH(I,C){ } to get an iterator I to
+// each item in a collection C.
+#define VAR(V,init) __typeof(init) V=(init)
+#define FOR_EACH(I,C) for(VAR(I,(C).begin());I!=(C).end();I++)
 
-/** Normalize an angle to within +/_ M_PI. */
-double angle_normalize( double a );
-
-typedef struct
+namespace Uni
 {
-  double x,y,a; // 2d position and orientation
-} pose_t;
+    
+  /** Convert radians to degrees. */
+  inline double rtod( double r ){ return( r * 180.0 / M_PI ); }
+  /** Convert degrees to radians */
+  inline double dtor( double d){ return( d * M_PI / 180.0 ); }
+  
+  class Robot
+  {
+  public:
+	 class Pose
+	 {
+	 public:
+		double x,y,a; // 2d position and orientation
+		
+	 Pose( double x, double y, double a ) : x(x), y(y), a(a) {}
+	 Pose() : x(0.0), y(0.0), a(0.0) {}
+		
+		// get a random pose 
+		static Pose Random()
+		{
+		  return Pose( drand48() * Robot::worldsize, 
+							drand48() * Robot::worldsize, 
+							Robot::AngleNormalize( drand48() * (M_PI*2.0)));
+		}
+	 };
+	 
+	 class Speed
+	 {		
+	 public:
+		double v; // forward speed
+		double w; // turn speed
+	  	
+		// constructor sets speeds to zero
+	 Speed() : v(0.0), w(0.0) {}		
+	 };
+	 
+	 class Color
+	 {
+	 public:
+		double r, g, b;
 
-// each robot has an array of these to store its observations
-typedef struct
-{
-  double range;
-  int color;
-} pixel_t;  
+	 Color( double r, double g, double b ) :
+		r(r), g(g), b(b) {}
+	 };
+	 
+	 // each robot has a vector of these to store its observations
+	 class Pixel
+	 {
+	 public:
+		double range;
+		Robot* robot;
 
-typedef struct
-{
-  GList* robots;      // list of pointers to robots
-  unsigned long robot_count; // number of robots in list
-  double seconds; // simulation time elapsed
-  double seconds_max; // number of seconds to simulate
-  double updates_per_second; // simulation time resolution
-  int sleep_msec; // sleep for this many milliseconds per update cycle
-  double size; // length of a side of the world, which is square.
-  int data; // sensor data visualization flag 
-} world_t;
+	 Pixel() : range(0.0), robot(NULL) {}
+	 };  
+	 
+	 // STATIC DATA AND METHODS --------------------------------------------
+	 
+	 // initialization: call this before using any other calls.
+	 static void Init( int argc, char** argv );
 
-typedef struct robot
-{
-  unsigned long id; // unique ID for this robot
-  world_t* world;  // the world that contains this robot
-  pose_t pose;     // robot is located at this pose
-  int color;       // robot's body has this color
-  double range;    // sensor detects objects up tp this maximum distance
-  double fov;      // sensor detects objects within this angular
-		             // field-of-view about the current heading
-  double v_speed;  // current forward speed
-  double w_speed;  // current angular speed (turn-rate)
+	 static uint64_t updates; // number of simulation steps so far	 
+	 static uint64_t updates_max; // number of simulation steps to run before quitting (0 means infinity)
+	 static unsigned int sleep_msec; // number of milliseconds to sleep at each update
+	 static double worldsize; // side length of the toroidal world
+	 static double range;    // sensor detects objects up tp this maximum distance
+	 static double fov;      // sensor detects objects within this angular field-of-view about the current heading
+	 static unsigned int pixel_count; // number of pixels in sensor
+	 static std::vector<Robot*> population;
+	 static bool show_data; // controls visualization of pixel data
+	 static bool paused; // runs only when this is false
 
-  pixel_t* pixels; // robot's sensor vector
-  size_t pixel_count; // length of the sensor vector
+	 // render all robots in OpenGL
+	 static void DrawAll()
+	 {
+		FOR_EACH( r, population )
+		  (*r)->Draw();
+	 }
+	 
+	 // update all robots
+	 static void UpdateAll();
 
-  void (*func)(struct robot *); // this function gets called to update the robot
-} robot_t;
+	 /** Normalize a length to within 0 to worldsize. */
+	 static double DistanceNormalize( double d )
+	 {
+		while( d < 0 ) d += worldsize;
+		while( d > worldsize ) d -= worldsize;
+		return d; 
+	 } 
+	 
+	 /** Normalize an angle to within +/_ M_PI. */
+	 static double AngleNormalize( double a )
+	 {
+		while( a < -M_PI ) a += 2.0*M_PI;
+		while( a >  M_PI ) a -= 2.0*M_PI;	 
+		return a;
+	 }	 
 
+	 static void Run();
 
-// user can pass a function of this type into universe_run() to
-// control robots.
-typedef void (*control_func_t)(robot_t*);
+	 // NON-STATIC DATA AND METHODS ------------------------------------------
+	 
+	 Pose pose;    // robot is located at this pose
+	 Speed speed;  // robot is moving this fast
+	 Color color;  // robot's body has this color  
 
-// create a new robot with these parameters
-robot_t* robot_create( world_t* world,
-		       double x, double y, double a, 
-		       int color, 
-		       double range,
-		       double fov,
-		       int pixel_count,
-		       double v_speed,
-		       double w_speed,
-		       control_func_t func );
+	 std::vector<Pixel> pixels; // robot's sensor data vector
+	 
+	 // create a new robot with these parameters
+	 Robot( const Pose& pose, 
+			  const Color& color );
+	 
+	 virtual ~Robot() {}
 
-// create a new robot with random intitial pose and speeds
-robot_t* robot_create_random( world_t* world,
-			      int color,
-			      double range,
-			      double fov,
-			      int pixel_count,
-			      control_func_t func );
+	 // pure virtual - subclasses must implement this method	 
+	 virtual void Controller() = 0;
+	 
+	 // render the robot in OpenGL
+	 void Draw();
 
-// create a new world with these parameters
-world_t* world_create( int* argc,
-							  char** argv,
-							  double size, // world is size^2 units
-							  double seconds, // number of seconds to simulate
-							  int updates_per_second, // updates per timestep
-							  int sleep_msec, // sleep for this many milliseconds per update cycle
-							  int data ); // enable sensor data visualization
+	 // move the robot and update its sense vector
+	 void Update();
 
-void world_add_robot( world_t* world, robot_t* robot );
+	 void UpdatePixels();
+	 
+  
 
-void world_run( world_t* world );
+  };
 
+}; // namespace Uni

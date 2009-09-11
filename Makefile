@@ -11,18 +11,16 @@ GLUT = -framework OpenGL -framework GLUT
 
 GLIB = `pkg-config --cflags --libs glib-2.0`
 
-CC = gcc
-#CFLAGS = -g -Wall $(GLUTFLAGS)
-#LIBS =  $(GLIB) $(GLUTLIBS) -lm
-CFLAGS = -g -Wall $(GLUT)
+CC = g++
+CXXFLAGS = -g -Wall $(GLUT)
 LIBS =  $(GLIB) -lm
 
-SRC = universe.h universe.c controller.c
+SRC = universe.h universe.cc controller.cc
 
 all: universe
 
 universe: $(SRC)
-	$(CC) $(CFLAGS) $(LIBS) -o $@ $(SRC) 
+	$(CC) $(CXXFLAGS) $(LIBS) -o $@ $(SRC) 
 
 clean:
 	rm *.o universe
