@@ -14,22 +14,22 @@ const char* PROGNAME = "universe";
 
 #if GRAPHICS
 #include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
-int Robot::winsize( 500 );
-int Robot::displaylist(0);
-bool Robot::show_data( true );
 #endif
 
 // initialize static members
-double Robot::worldsize(0.8);
+double Robot::worldsize(1.0);
 double Robot::range( 0.1 );
-double Robot::fov(  M_PI/10.0 );
-//double Robot::fov( 2.0 * M_PI );
+double Robot::fov(  dtor(270.0) );
 std::vector<Robot*> Robot::population;
-unsigned int Robot::pixel_count( 32 );
-unsigned int Robot::sleep_msec( 10 );
+unsigned int Robot::population_size( 100 );
+unsigned int Robot::pixel_count( 8);
+unsigned int Robot::sleep_msec( 50 );
 uint64_t Robot::updates(0);
 uint64_t Robot::updates_max( 0.0 ); 
 bool Robot::paused( false );
+int Robot::winsize( 600 );
+int Robot::displaylist(0);
+bool Robot::show_data( true );
 
 #if GRAPHICS
 // GLUT callback functions ---------------------------------------------------
@@ -88,12 +88,53 @@ Robot::Robot( const Pose& pose,
 
 void Robot::Init( int argc, char** argv )
 {
-  // parse arguments to configure Robot static members
-  // TODO
- 
   // seed the random number generator with the current time
   srand48(time(NULL));
+	
+  // parse arguments to configure Robot static members
+	int c;
+	while( ( c = getopt( argc, argv, "dp:s:f:r:c:u:z:w:")) != -1 )
+		switch( c )
+			{
+			case 'p': 
+				population_size = atoi( optarg );
+				break;
+				
+			case 's': 
+				worldsize = atof( optarg );
+				break;
+				
+			case 'f': 
+				fov = dtor(atof( optarg )); // degrees to radians
+				break;
+				
+			case 'r': 
+				range = atof( optarg );
+				break;
+				
+			case 'c':
+				pixel_count = atoi( optarg );
+				break;
+				
+      case 'u':
+				updates_max = atol( optarg );
+				break;
+				
+			case 'z':
+				sleep_msec = atoi( optarg );
+				break;
+				
+#if GRAPHICS
+			case 'w': winsize = atoi( optarg );
+				break;
 
+			case 'd': show_data= false;
+				break;
+#endif			
+			default:
+				fprintf( stderr, "[Uni] Option parse error.\n" );
+			}
+	
 #if GRAPHICS
   // initialize opengl graphics
   glutInit( &argc, argv );

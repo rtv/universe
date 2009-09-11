@@ -8,13 +8,13 @@
 using namespace Uni;
 
 // this is the robot controller code
-class Avoider : public Robot
+class Swarmer : public Robot
 {
 public:
   
   static bool invert;
   
-  Avoider() : Robot( Pose::Random(), Color(0,0,1) )
+  Swarmer() : Robot( Pose::Random(), Color(0,0,1) )
   {}
   
   // must implement this method. Examine the pixels vector and set the
@@ -49,52 +49,24 @@ public:
 };
 
 // static members
-bool Avoider::invert( false );
-
-  
-// program parameters
-// static int population = 100; // -p
-// static int updates = 10000;  // -s
-// static int updates_per_second = 5; // -u
-// static int msec = 10;  // -m
-// static int data = 0; // visualize sensor data
-
-// /* THE OPTION-PARSING CODE REQUIRES GLIB 2.6 OR LATER */
-// static GOptionEntry entries[] =
-//   {
-//     { "angle", 'a', 0, G_OPTION_ARG_INT, &Robot::fov, "Robot sensor field of view in degrees", "20" },
-//     { "range", 'r', 0, G_OPTION_ARG_INT, &Robot::range, "Robot sensor range", "20" },
-//     { "pixels", 'x', 0, G_OPTION_ARG_INT, &Robot::pixel_count, "Robot sensor pixel count", "9" },
-//     { "steps", 's', 0, G_OPTION_ARG_INT, &Robot::updates_max, "Number of seconds to simulate", "10000" },
-//     { "msec", 'm', 0, G_OPTION_ARG_INT, &Robot::sleep, "Sleep time between updates in milliseconds", "1" },
-
-//     { "population", 'p', 0, G_OPTION_ARG_INT, &population, "Size of robot population", "100" },
-//     { "invert", 'i', 0, G_OPTION_ARG_NONE, &invert, "Invert robot heading", NULL },
-// 	 { "data", 'd', 0, G_OPTION_ARG_NONE, &data, "Disable sensor data visualization", NULL },
-//     { NULL }
-//   };
-
-// // processes the command line to set the parameters
-// void parse_args( int* argc, char* argv[] )
-// {
-//   GError *error = NULL;
-//   GOptionContext* context =
-//     g_option_context_new( "- test tree model performance" );
-//   g_option_context_add_main_entries( context, entries, NULL );
-//   g_option_context_parse( context, argc, &argv, &error );
-// }
-
-
+bool Swarmer::invert( false );
 
 int main( int argc, char* argv[] )
- {
-	int population = 200;
-
+{
 	// configure global robot settings
 	Robot::Init( argc, argv );
 	
-	for( int i=0; i<population; i++ )
-	  new Avoider();
+  // parse remaining cmdline arguments to configure swarmer
+	int c;
+	while( ( c = getopt( argc, argv, "i")) != -1 )
+	 	switch( c )
+	 		{
+	 		case 'i': Swarmer::invert = true;
+	 			break;				
+			}
+	
+	for( unsigned int i=0; i<Robot::population_size; i++ )
+		new Swarmer();
 	
 	// and start the simulation running
 	Robot::Run();

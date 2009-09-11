@@ -1,5 +1,6 @@
 /****
 	  universe.h
+		Clone this package from git://github.com/rtv/universe.git
 	  version 2
 	  Richard Vaughan  
 ****/
@@ -74,7 +75,7 @@ namespace Uni
 	 
 	 // STATIC DATA AND METHODS ------------------------------------------
 	 
-	 /** initialization: call this before using any other calls. */
+	 /** initialization: call this before using any other calls. */	
 	 static void Init( int argc, char** argv );
 
 	 /** update all robots */
@@ -97,13 +98,13 @@ namespace Uni
 	 static double fov;      // sensor detects objects within this angular field-of-view about the current heading
 	 static unsigned int pixel_count; // number of pixels in sensor
 	 static std::vector<Robot*> population;
+	 static unsigned int population_size; // number of robots
 	 static bool paused; // runs only when this is false
-
-#if GRAPHICS
 	 static bool show_data; // controls visualization of pixel data
 	 static int winsize; // initial size of the window in pixels
 	 static int displaylist; // robot body macro
 
+#if GRAPHICS
 	 /** render all robots in OpenGL */
 	 static void DrawAll();
 #endif
@@ -132,6 +133,5 @@ namespace Uni
 
 	 // update
 	 void UpdatePixels();
-  };
-
+  };	
 }; // namespace Uni
