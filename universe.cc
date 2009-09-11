@@ -10,15 +10,14 @@
 #include "universe.h"
 using namespace Uni;
 
-#define GRAPHICS 1
+const char* PROGNAME = "universe";
 
 #if GRAPHICS
- #include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
- #define WIN_SIZE 500
- static int displaylist=0;
+#include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
+int Robot::winsize( 500 );
+int Robot::displaylist(0);
+bool Robot::show_data( true );
 #endif
-
-const char* PROGNAME = "universe";
 
 // initialize static members
 double Robot::worldsize(0.8);
@@ -26,11 +25,10 @@ double Robot::range( 0.1 );
 double Robot::fov(  M_PI/10.0 );
 //double Robot::fov( 2.0 * M_PI );
 std::vector<Robot*> Robot::population;
-unsigned int Robot::pixel_count( 4 );
-unsigned int Robot::sleep_msec( 0 );
+unsigned int Robot::pixel_count( 32 );
+unsigned int Robot::sleep_msec( 10 );
 uint64_t Robot::updates(0);
 uint64_t Robot::updates_max( 0.0 ); 
-bool Robot::show_data( true );
 bool Robot::paused( false );
 
 #if GRAPHICS
@@ -54,12 +52,12 @@ static void display_func( void )
   glClear( GL_COLOR_BUFFER_BIT );  
   Robot::DrawAll();
   glutSwapBuffers();
-
+	
   // run this function again in about 50 msec
   glutTimerFunc( 20, timer_func, 0 );
 }
 
-void mouse_func(int button, int state, int x, int y) 
+static void mouse_func(int button, int state, int x, int y) 
 {  
   if( (button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN ) )
 	 {
@@ -67,12 +65,39 @@ void mouse_func(int button, int state, int x, int y)
 	 }
 }
 
-
-static void init_graphics( int argc, char** argv )
+// render all robots in OpenGL
+void Robot::DrawAll()
 {
+	FOR_EACH( r, population )
+		(*r)->Draw();
+}
+
+#endif // GRAPHICS
+
+Robot::Robot( const Pose& pose, 
+				  const Color& color )
+  : pose(pose),
+	 speed(),
+	 color(color),
+	 pixels()
+{
+  // add myself to the static vector of all robots
+  population.push_back( this );
+  pixels.resize( pixel_count );
+}
+
+void Robot::Init( int argc, char** argv )
+{
+  // parse arguments to configure Robot static members
+  // TODO
+ 
+  // seed the random number generator with the current time
+  srand48(time(NULL));
+
+#if GRAPHICS
   // initialize opengl graphics
   glutInit( &argc, argv );
-  glutInitWindowSize( WIN_SIZE, WIN_SIZE );
+  glutInitWindowSize( winsize, winsize );
   glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA );
   glutCreateWindow( PROGNAME );
   glClearColor( 0.8,0.8,1.0,1.0 );
@@ -108,33 +133,7 @@ static void init_graphics( int argc, char** argv )
   glEnd();
 
   glEndList();
-}
-
 #endif // GRAPHICS
-
-Robot::Robot( const Pose& pose, 
-				  const Color& color )
-  : pose(pose),
-	 speed(),
-	 color(color),
-	 pixels()
-{
-  // add myself to the static vector of all robots
-  population.push_back( this );
-  pixels.resize( pixel_count );
-}
-
-void Robot::Init( int argc, char** argv )
-{
-  // parse arguments to configure Robot static members
-  // TODO
- 
-  // seed the random number generator with the current time
-  srand48(time(NULL));
-
-#if GRAPHICS
-	 init_graphics( argc, argv );
-#endif
 }
 
 void Robot::UpdatePixels()
@@ -196,13 +195,8 @@ void Robot::UpdatePixels()
     }	
 }
 
-void Robot::Update()
+void Robot::UpdatePose()
 {
-  UpdatePixels();
-  
-  // run the virtual controller method
-  Controller();
-  
   // move according to the current speed 
   double dx = speed.v * cos(pose.a);
   double dy = speed.v * sin(pose.a);; 
@@ -220,8 +214,16 @@ void Robot::UpdateAll()
 	 exit(1);
   
   if( ! Robot::paused )
-	 FOR_EACH( r, population )
-		(*r)->Update();
+		{
+			FOR_EACH( r, population )
+				(*r)->UpdatePose();
+
+			FOR_EACH( r, population )
+				(*r)->UpdatePixels();
+
+			FOR_EACH( r, population )
+				(*r)->Controller();
+		}
   
   // possibly snooze to save CPU and slow things down
   if( sleep_msec > 0 )
@@ -237,6 +239,8 @@ void Robot::Draw()
   glRotatef( rtod(pose.a), 0,0,1 );
   
 	glColor3f( color.r, color.g, color.b ); 
+
+	// draw the pre-compiled triangle for a body
   glCallList(displaylist);
   
   if( Robot::show_data )
@@ -278,6 +282,18 @@ void Robot::Run()
 #endif
 }
 
+/** Normalize a length to within 0 to worldsize. */
+double Robot::DistanceNormalize( double d )
+{
+	while( d < 0 ) d += worldsize;
+	while( d > worldsize ) d -= worldsize;
+	return d; 
+} 
 
-
-
+/** Normalize an angle to within +/_ M_PI. */
+double Robot::AngleNormalize( double a )
+{
+	while( a < -M_PI ) a += 2.0*M_PI;
+	while( a >  M_PI ) a -= 2.0*M_PI;	 
+	return a;
+}	 

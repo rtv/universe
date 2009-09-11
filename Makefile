@@ -1,19 +1,17 @@
 #   Makefile - universe project
-#   version 2
+#   version 3
 #   Richard Vaughan  
 
-# this should work on Linux
+# this should work on Linux with MESA
 #GLUTLIBS = -L/usr/X11R6/lib -lGLU -lGL -lglut -lX11 -lXext -lXmu -lXi
 #GLUTFLAGS = -I/usr/local/include/GL
 
 # this works on Mac OS X
-GLUT = -framework OpenGL -framework GLUT
-
-GLIB = `pkg-config --cflags --libs glib-2.0`
+GLUTFLAGS = -framework OpenGL -framework GLUT
 
 CC = g++
-CXXFLAGS = -g -Wall $(GLUT)
-LIBS =  $(GLIB) -lm
+CXXFLAGS = -g -Wall -O3 $(GLUTFLAGS)
+LIBS =  -lm $(GLUTLIBS)
 
 SRC = universe.h universe.cc controller.cc
 

@@ -8,13 +8,13 @@
 using namespace Uni;
 
 // this is the robot controller code
-class Swarmer : public Robot
+class Avoider : public Robot
 {
 public:
   
   static bool invert;
   
-  Swarmer() : Robot( Pose::Random(), Color(1,0,0) )
+  Avoider() : Robot( Pose::Random(), Color(0,0,1) )
   {}
   
   // must implement this method. Examine the pixels vector and set the
@@ -49,7 +49,7 @@ public:
 };
 
 // static members
-bool Swarmer::invert( false );
+bool Avoider::invert( false );
 
   
 // program parameters
@@ -88,13 +88,13 @@ bool Swarmer::invert( false );
 
 int main( int argc, char* argv[] )
  {
-	int population = 400;
+	int population = 200;
 
 	// configure global robot settings
 	Robot::Init( argc, argv );
 	
 	for( int i=0; i<population; i++ )
-	  new Swarmer();
+	  new Avoider();
 	
 	// and start the simulation running
 	Robot::Run();
