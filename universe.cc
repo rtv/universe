@@ -181,6 +181,8 @@ void Robot::UpdatePixels()
 {
   double radians_per_pixel = fov / (double)pixel_count;
   
+  double halfworld = worldsize * 0.5;
+
   // initialize pixels vector  
   FOR_EACH( it, pixels )
 	 {
@@ -199,15 +201,29 @@ void Robot::UpdatePixels()
 			
       // discard if it's out of range. We put off computing the
       // hypotenuse as long as we can, as it's relatively expensive.
-			
+		
       double dx = other->pose.x - pose.x;
-			if( dx > Robot::range )
-				continue; // out of range
-			
+
+		// wrap around torus
+		if( dx > halfworld )
+		  dx -= worldsize;
+		else if( dx < -halfworld )
+		  dx += worldsize;
+		
+		if( fabs(dx) > Robot::range )
+		  continue; // out of range
+		
       double dy = other->pose.y - pose.y;
-			if( dy > Robot::range )
-				continue; // out of range
-			
+
+		// wrap around torus
+		if( dy > halfworld )
+		  dy -= worldsize;
+		else if( dy < -halfworld )
+		  dy += worldsize;
+
+		if( fabs(dy) > Robot::range )
+		  continue; // out of range
+		
       double range = hypot( dx, dy );
       if( range > Robot::range ) 
 				continue; 
