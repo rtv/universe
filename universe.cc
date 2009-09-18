@@ -31,6 +31,18 @@ int Robot::winsize( 600 );
 int Robot::displaylist(0);
 bool Robot::show_data( true );
 
+char usage[] = "Universe understands these command line arguments:\n"
+ "  -? : Prints this helpful message.\n"
+ "  -c <int> : sets the number of pixels in the robots' sensor.\n"
+ "  -d  Disables drawing the sensor field of view. Speeds things up a bit.\n"
+ "  -f <float> : sets the sensor field of view angle in degrees.\n"
+ "  -p <int> : set the size of the robot population.\n"
+ "  -r <float> : sets the sensor field of view range.\n"
+ "  -s <float> : sets the side length of the (square) world.\n"
+ "  -u <int> : sets the number of updates to run before quitting.\n"
+ "  -w <int> : sets the initial size of the window, in pixels.\n"
+ "  -z <int> : sets the number of milliseconds to sleep between updates.\n";
+
 #if GRAPHICS
 // GLUT callback functions ---------------------------------------------------
 
@@ -93,46 +105,62 @@ void Robot::Init( int argc, char** argv )
 	
   // parse arguments to configure Robot static members
 	int c;
-	while( ( c = getopt( argc, argv, "dp:s:f:r:c:u:z:w:")) != -1 )
+	while( ( c = getopt( argc, argv, "?dp:s:f:r:c:u:z:w:")) != -1 )
 		switch( c )
 			{
 			case 'p': 
 				population_size = atoi( optarg );
+				printf( "[Uni] population_size: %d\n", population_size );
 				break;
 				
 			case 's': 
 				worldsize = atof( optarg );
+				printf( "[Uni] worldsize: %.2f\n", worldsize );
 				break;
 				
 			case 'f': 
 				fov = dtor(atof( optarg )); // degrees to radians
+				printf( "[Uni] fov: %.2f\n", fov );
 				break;
 				
 			case 'r': 
 				range = atof( optarg );
+				printf( "[Uni] range: %.2f\n", range );
 				break;
 				
 			case 'c':
 				pixel_count = atoi( optarg );
+				printf( "[Uni] pixel_count: %d\n", pixel_count );
 				break;
 				
       case 'u':
 				updates_max = atol( optarg );
+				printf( "[Uni] updates_max: %lu\n", (long unsigned)updates_max );
 				break;
 				
 			case 'z':
 				sleep_msec = atoi( optarg );
+				printf( "[Uni] sleep_msec: %d\n", sleep_msec );
 				break;
 				
 #if GRAPHICS
 			case 'w': winsize = atoi( optarg );
+				printf( "[Uni] winsize: %d\n", winsize );
 				break;
 
 			case 'd': show_data= false;
-				break;
+			  puts( "[Uni] hide data" );
+			  break;
 #endif			
+			case '?':
+			  puts( usage );
+			  exit(0); // ok
+			  break;
+
 			default:
 				fprintf( stderr, "[Uni] Option parse error.\n" );
+				puts( usage );
+				exit(-1); // error
 			}
 	
 #if GRAPHICS
@@ -267,7 +295,7 @@ void Robot::UpdatePose()
 void Robot::UpdateAll()
 {
   // if we've done enough updates, exit the program
-  if( updates > updates_max )
+  if( updates_max > 0 && updates > updates_max )
 	 exit(1);
   
   if( ! Robot::paused )
@@ -281,6 +309,8 @@ void Robot::UpdateAll()
 			FOR_EACH( r, population )
 				(*r)->Controller();
 		}
+
+  ++updates;
   
   // possibly snooze to save CPU and slow things down
   if( sleep_msec > 0 )

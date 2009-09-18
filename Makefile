@@ -11,7 +11,7 @@ GLUTFLAGS = -framework OpenGL -framework GLUT
 
 CC = g++
 CXXFLAGS = -g -Wall -O3 $(GLUTFLAGS)
-LIBS =  -lm $(GLUTLIBS)
+LIBS =  -g -lm $(GLUTLIBS)
 
 SRC = universe.h universe.cc controller.cc
 
