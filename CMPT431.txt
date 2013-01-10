@@ -60,7 +60,8 @@ and your run speed may be effected by the robot behaviour. Recall that sensor FO
 Reporting
 ---------
 
-1) Write a 2 page report 
+1) Write a short report with no more than 2 pages of text plus as many
+pages of figures as you wish:
 
 	a) explaining the approach and outlining the changes you made to
 	the code. 
@@ -76,8 +77,7 @@ Reporting
 along with all instructions needed to run them. Do this before the due
 date.
 
-Repo instructions for the class are available separately.
-
+Version control repository instructions for the class are available separately.
 
 Getting Help
 ------------
