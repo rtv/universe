@@ -1,4 +1,13 @@
-* CMPT 431 Distributed Systems - Richard Vaughan *
+** CMPT 431 Distributed Systems
+**  Richard Vaughan 2013
+
+Instructions for coding project
+===============================
+
+* Important * As a build-up to the group project, you must complete
+two individual "checkpoint" assignments. This must be all your own
+work. You are encouraged to discuss approaches and results, but you
+must not share code at this stage.
 
 Checkpoint 1: Speed up Universe by data structure improvements
 ============================================================
@@ -85,3 +94,15 @@ Getting Help
 Follow the procedures on the class web page for getting help with this
 assignment. Do not share code with your colleages, but discussing and
 comparing stategies is encouraged.
+
+
+Checkpoint 2
+============
+	
+Instructions will appear here before February 1. 
+		
+
+Group Project
+=============
+
+Instructions will appear here before March 1.
