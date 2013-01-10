@@ -18,6 +18,7 @@ const char* PROGNAME = "universe";
 
 namespace Uni {
   
+  bool need_redraw( true );
   double worldsize(1.0);
   std::vector<Robot> population( 100 );
   uint64_t updates(0);
@@ -55,6 +56,10 @@ char usage[] = "Universe understands these command line arguments:\n"
 static void idle_func( void )
 {
   Uni::UpdateAll();
+
+  // possibly snooze to save CPU and slow things down
+  if( Uni::sleep_msec > 0 )
+    usleep( Uni::sleep_msec * 1e3 );
 }
 
 static void timer_func( int dummy )
@@ -65,13 +70,20 @@ static void timer_func( int dummy )
 // draw the world - this is called whenever the window needs redrawn
 static void display_func( void ) 
 {  
-  glClear( GL_COLOR_BUFFER_BIT );  
+  if( Uni::need_redraw )
+    {
+      Uni::need_redraw = false;
+      
+      glClear( GL_COLOR_BUFFER_BIT );  
+      
+      FOR_EACH( r, population )
+	r->Draw();
+      
+      glutSwapBuffers();
+      
+      glFlush();
+    }
   
-  FOR_EACH( r, population )
-    r->Draw();
-  
-  glutSwapBuffers();
-	
   // cause this run again in about 50 msec
   glutTimerFunc( 50, timer_func, 0 );
 }
@@ -326,13 +338,11 @@ void Uni::UpdateAll()
 	  Robot &b = *r;
 	  r->callback( b, r->callback_data);
 	}
+
+      need_redraw = true;
     }
   
-  ++updates;
-  
-  // possibly snooze to save CPU and slow things down
-  if( sleep_msec > 0 )
-    usleep( sleep_msec * 1e3 );
+  ++updates;  
 }
 
 // draw a robot
