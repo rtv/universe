@@ -1,6 +1,6 @@
 * CMPT 431 Distributed Systems - Richard Vaughan *
 
-Homework 1: Speed up Universe by data structure improvements
+Checkpoint 1: Speed up Universe by data structure improvements
 ============================================================
 
 Your task is to speed up Universe by breaking up its single O(n^2)
@@ -20,7 +20,7 @@ You are free to choose any method that interests you, however you have
 limited time so choose something that you can implement quickly.
 
 The main distance calculation for one robot to fill its array of
-sensors is the Univers::Robot::UpdatePixels() method. 
+sensors is the Univers::Robot::UpdateSensors() method. 
 
 Testing
 -------
@@ -32,19 +32,20 @@ Universe understands these command line switches:
 -d : Disables drawing the sensor field of view. Speeds things up a bit.
 -f <float> : sets the sensor field of view angle in degrees
 -p <int> : set the size of the robot population
+-q : disables chatty status output (quiet mode)
 -r <float> : sets the sensor field of view range
 -s <float> : sets the side length of the (square) world
 -u <int> : sets the number of updates to run before quitting
 -w <int> : sets the initial size of the window, in pixels
 -z <int> : sets the number of milliseconds to sleep between updates
 
-Test your code by timing the real time it takes to do 10,000 update
-steps, with a between-step sleep time of zero, for sensor view angles
-of 270 degrees (the default) and 10 degrees, for increasing population
-sizes [10, 100, 500, 1000, ... up to as large as you like] Like
-this:
+Test your code by timing the real time it takes to do a fixed number
+of update steps, say 1000 (-u 1000) with a between-step sleep time of
+zero (-z 0), for sensor view angles of 270 degrees (the default, or -f
+270) and 10 degrees (-f 10), for increasing population sizes [10, 100,
+500, 1000, ... up to as large as you like] Like this:
 
-$ time ./universe -d -z 0 -f 10 -u 10000 -p 500
+$ time ./universe -d -z 0 -f 270 -u 10000 -p 500
 real	1m18.766s
 user	1m15.687s
 sys	0m0.992s
@@ -54,13 +55,10 @@ metric.
 
 (We need to run for many simulation steps since the robot behaviour is
 very different at t=0 and t=<thousands> when the sensor FOV is small,
-and your run speed may be effected by the robot behaviour).
+and your run speed may be effected by the robot behaviour. Recall that sensor FOV has a large effect on robot behaviour).
 
 Reporting
 ---------
-
-0) Sign up for a 10-minute demo meeting with the instructor or TA,
-   using the sign-up sheet linked from the class webpage.
 
 1) Write a 2 page report 
 
@@ -74,15 +72,11 @@ Reporting
    modified universe faster than the original? Is this true for all
    population sizes? Why, or why not?
 
-2) Meet the instructor in CSIL to explain and demonstrate your code.
+3) Commit your report, code and test scripts to the class repository
+along with all instructions needed to run them. Do this before the due
+date.
 
-   Before your meeting time, you should set up your code runnning on a
-   CSIL workstation or your laptop. Bring a paper copy of your draft
-   report to discuss. You can revise your code and report after the
-   demo meeting and before submission.
-
-3) Submit the final version of your report electronically using the
-   CMPT submission server.
+Repo instructions for the class are available separately.
 
 
 Getting Help
