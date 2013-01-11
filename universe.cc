@@ -13,7 +13,7 @@ using namespace Uni;
 const char* PROGNAME = "universe";
 
 #if GRAPHICS
-#include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
+#include <GL/glut.h> // OS X users need <glut/glut.h> instead
 #endif
 
 namespace Uni {
@@ -392,9 +392,7 @@ void Uni::Run()
   glutMainLoop();
 #else
   while( 1 )
-    {
-      FOR_EACH( r, population )
-	r->Update();
+	Uni::UpdateAll();
 #endif
 }
 
