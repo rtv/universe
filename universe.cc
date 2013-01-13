@@ -13,7 +13,7 @@ using namespace Uni;
 const char* PROGNAME = "universe";
 
 #if GRAPHICS
-#include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
+#include <GL/glut.h> // OS X users need <glut/glut.h> instead
 #endif
 
 namespace Uni {
@@ -171,15 +171,14 @@ void Uni::Init( int argc, char** argv )
       case 'w': winsize = atoi( optarg );
 	if( ! quiet ) printf( "[Uni] winsize: %d\n", winsize );
 	break;
-
+#endif
       case 'd': show_data= false;
 	if( ! quiet ) puts( "[Uni] hide data" );
 	break;
 
       case 'q': quiet = true;
 	break;
-
-#endif			
+			
       case '?':
 	puts( usage );
 	exit(0); // ok
@@ -392,9 +391,7 @@ void Uni::Run()
   glutMainLoop();
 #else
   while( 1 )
-    {
-      FOR_EACH( r, population )
-	r->Update();
+	Uni::UpdateAll();
 #endif
 }
 
