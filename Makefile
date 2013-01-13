@@ -3,14 +3,14 @@
 #   Richard Vaughan  
 
 # this should work on Linux with MESA
-#GLUTLIBS = -L/usr/X11R6/lib -lGLU -lGL -lglut -lX11 -lXext -lXmu -lXi
-#GLUTFLAGS = -I/usr/local/include/GL
+GLUTLIBS = -L/usr/X11R6/lib -lGLU -lGL -lglut -lX11 -lXext
+GLUTFLAGS = -I/usr/local/include/GL
 
 # this works on Mac OS X
-GLUTFLAGS = -framework OpenGL -framework GLUT
+#GLUTFLAGS = -framework OpenGL -framework GLUT
 
 CC = g++
-CXXFLAGS = -g -Wall -O3 $(GLUTFLAGS)
+CXXFLAGS = -g -Wall -O3 $(GLUTFLAGS) -std=gnu++0x
 LIBS =  -g -lm $(GLUTLIBS)
 
 SRC = universe.h universe.cc controller.cc
