@@ -171,15 +171,14 @@ void Uni::Init( int argc, char** argv )
       case 'w': winsize = atoi( optarg );
 	if( ! quiet ) printf( "[Uni] winsize: %d\n", winsize );
 	break;
-
+#endif
       case 'd': show_data= false;
 	if( ! quiet ) puts( "[Uni] hide data" );
 	break;
 
       case 'q': quiet = true;
 	break;
-
-#endif			
+			
       case '?':
 	puts( usage );
 	exit(0); // ok
