@@ -9,10 +9,10 @@
 #include <math.h> 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <stdint.h>
-//#include <string.h>
-//#include <getopt.h>
-//#include <time.h>
+#include <stdint.h>
+#include <string.h>
+#include <getopt.h>
+#include <time.h>
 
 #define GRAPHICS 1
 
