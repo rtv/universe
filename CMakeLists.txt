@@ -5,16 +5,10 @@ set(universe_HEADERS src/universe.h)
 set(universe_SOURCES src/universe.cc src/controller.cc)
 
 find_package(GLUT REQUIRED)
-
-if (NOT APPLE)
-    find_package(OpenGL REQUIRED)
-    if (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
-        message( FATAL_ERROR "GLU not found" )
-    endif (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
-else (NOT APPLE)
-    set(OPENGL_INCLUDE_DIR /usr/X11R6/include/)
-    set(OPENGL_LIBRARIES /usr/X11R6/lib/libGL.dylib /usr/X11R6/lib/libGLU.dylib)
-endif (NOT APPLE)
+find_package(OpenGL REQUIRED)
+if (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
+	message( FATAL_ERROR "GLU not found" )
+endif (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
 
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
 add_executable(universe 

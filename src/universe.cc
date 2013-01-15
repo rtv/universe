@@ -60,7 +60,6 @@ char usage[] = "Universe understands these command line arguments:\n"
 static void idle_func( void )
 {
   Uni::UpdateAll();
-
   // possibly snooze to save CPU and slow things down
   if( Uni::sleep_msec > 0 )
     usleep( Uni::sleep_msec * 1e3 );
