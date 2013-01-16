@@ -11,7 +11,13 @@ License: GNU GPL v3 or later (applies to all files in this repo).
 ### Ubuntu (Tested on Ubuntu 11.10, 12.04 and 12.10)
 
 <pre>
-sudo apt-get install build-essential cmake freeglut3-dev libxi-dev libxmu-dev
+sudo apt-get install build-essential cmake freeglut3-dev 
+</pre>
+
+Optional: 
+
+<pre>
+sudo apt-get install libxi-dev libxmu-dev
 </pre>
 
 ### Mac OS (Tested on 10.8)
