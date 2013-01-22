@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "universe.h"
 using namespace Uni;
@@ -29,6 +30,8 @@ namespace Uni {
   bool show_data( true );
   unsigned int sleep_msec( 50 );
   
+  double lastseconds; 
+
   // Robot static members
   unsigned int Robot::pixel_count( 8);
   double Robot::range( 0.1 );
@@ -230,6 +233,10 @@ void Uni::Init( int argc, char** argv )
 
   glEndList();
 #endif // GRAPHICS
+
+  struct timeval start;
+  gettimeofday( &start, NULL );
+  lastseconds =  start.tv_sec + start.tv_usec/1e6;
 }
 
 void Robot::UpdateSensor()
@@ -342,6 +349,20 @@ void Uni::UpdateAll()
       need_redraw = true;
     }
   
+  const int period = 10;
+
+  if( updates % period == 0 )
+    {
+      struct timeval now;
+      gettimeofday( &now, NULL );
+      double seconds = now.tv_sec + now.tv_usec/1e6;
+      double interval = seconds - lastseconds;
+      printf( "[%d] FPS %.3f\r",(int)updates, period/interval );      
+      fflush(stdout);
+      lastseconds = seconds;      
+    }
+
+
   ++updates;  
 }
 
