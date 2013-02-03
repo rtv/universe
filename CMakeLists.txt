@@ -35,6 +35,8 @@ if (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
 	message( FATAL_ERROR "GLU not found" )
 endif (NOT ${OPENGL_GLU_FOUND} STREQUAL "YES")
 
+set(CMAKE_CXX_FLAGS "-g -Wall -O3")
+
 message (STATUS "Found OpenGL in ${OPENGL_INCLUDE_DIR}")
 message (STATUS "  OPENGL_LIBRARIES   ${OPENGL_LIBRARIES}")
 message (STATUS "  OPENGL_gl_LIBRARY  ${OPENGL_gl_LIBRARY}")
