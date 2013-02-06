@@ -28,7 +28,7 @@ Needs XCode command-line tools.
 
 ```bash
 [in code directory]
-cmake .
 make
 ```
 
+The Make script is a wrapper around [CMake](http://www.cmake.org/). 
