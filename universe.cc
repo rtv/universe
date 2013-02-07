@@ -123,7 +123,10 @@ Robot::Robot()
 void Uni::Init( int argc, char** argv ) 
 {
   // seed the random number generator with the current time
-  srand48(time(NULL));
+  // srand48(time(NULL));
+
+  // seed the random number generator with a constant for repeatability
+  srand48(0);
 
   bool quiet = false; // controls output verbosity
 
