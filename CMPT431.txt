@@ -115,6 +115,10 @@ Extend the code of universe to support a very large population that
 runs fast. Your challenge is to support one million robots running at
 10 updates per second of real time in a large, sparse world. 
 
+The courses system provides a Subversion (svn) repository for each
+group. See requirement 3 below. Start by committing your initial code
+there ASAP.
+
 You should design, implement, and test your system and describe it in
 a report of 6-10 pages of text *plus* as many pictures and tables as
 you need. Test your system to show the range of parameters in which it
@@ -178,6 +182,9 @@ mailing list as a challenge to others. Who can be the first to 100K @
 10Hz, etc, on the way to 1M @ 10Hz?
 
 4. compete in the contest in the last week of class.
+
+5. To start, choose either the original code or a fast and/or clean
+faster implementation from someone in your group.
 
 Allowed:
 
