@@ -1,25 +1,16 @@
-#   Makefile - universe project
-#   version 3
-#   Richard Vaughan  
+# Idea from: https://wiki.hpcc.msu.edu/display/~colbrydi@msu.edu/2010/08/19/Cmake+Makefile 
 
-# this should work on Linux with MESA
-#GLUTLIBS = -L/usr/X11R6/lib -lGLU -lGL -lglut -lX11 -lXext -lXmu -lXi
-#GLUTFLAGS = -I/usr/local/include/GL
+all: build make 
 
-# this works on Mac OS X
-GLUTFLAGS = -framework OpenGL -framework GLUT
+make: build/Makefile 
+	(cd build; make; cp ./universe ..;)
 
-CC = g++
-CXXFLAGS = -g -Wall -O3 $(GLUTFLAGS)
-LIBS =  -g -lm $(GLUTLIBS)
+build/Makefile: build
+	(cd build; cmake ..;)
 
-SRC = universe.h universe.cc controller.cc
-
-all: universe
-
-universe: $(SRC)
-	$(CC) $(CXXFLAGS) $(LIBS) -o $@ $(SRC) 
+build:   
+	mkdir build
 
 clean:
-	rm *.o universe
-
+	rm -f  -r build
+	rm -f ./universe

@@ -14,7 +14,11 @@ using namespace Uni;
 const char* PROGNAME = "universe";
 
 #if GRAPHICS
-#include <GLUT/glut.h> // OS X users need <glut/glut.h> instead
+    #ifdef __APPLE__
+        #include <glut/glut.h>
+    #else
+        #include <GL/glut.h> // OS X users need <glut/glut.h> instead
+    #endif
 #endif
 
 namespace Uni {
@@ -59,7 +63,6 @@ char usage[] = "Universe understands these command line arguments:\n"
 static void idle_func( void )
 {
   Uni::UpdateAll();
-
   // possibly snooze to save CPU and slow things down
   if( Uni::sleep_msec > 0 )
     usleep( Uni::sleep_msec * 1e3 );
@@ -416,9 +419,7 @@ void Uni::Run()
   glutMainLoop();
 #else
   while( 1 )
-    {
-      FOR_EACH( r, population )
-	r->Update();
+      Uni::UpdateAll();
 #endif
 }
 
