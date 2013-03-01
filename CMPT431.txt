@@ -4,8 +4,8 @@
 Instructions for coding project
 ===============================
 
-* Important * As a build-up to the group project, you must complete
-two individual "checkpoint" assignments. This must be all your own
+* Important * As a build-up to the group project, you must complete an
+individual "checkpoint" assignment. This must be all your own
 work. You are encouraged to discuss approaches and results, but you
 must not share code at this stage.
 
@@ -47,6 +47,9 @@ Universe understands these command line switches:
 -u <int> : sets the number of updates to run before quitting
 -w <int> : sets the initial size of the window, in pixels
 -z <int> : sets the number of milliseconds to sleep between updates
+
+Your final code must support all these flags: don't disable any
+functionality.
 
 Test your code by timing the real time it takes to do a fixed number
 of update steps, say 1000 (-u 1000) with a between-step sleep time of
@@ -96,13 +99,119 @@ assignment. Do not share code with your colleages, but discussing and
 comparing stategies is encouraged.
 
 
-Checkpoint 2
-============
-	
-Instructions will appear here before February 1. 
-		
-
 Group Project
 =============
 
-Instructions will appear here before March 1.
+* Form a group of exactly five students. Exactly five. For help with
+  this concept see http://www.youtube.com/watch?v=xOrgLj9lOwk?t=1m22s
+  except the value in question is five.
+
+* Register your group on the CMPT courses system http://courses.cs.sfu.ca
+
+Task 1: The one million robot challenge
+---------------------------------------
+
+Extend the code of universe to support a very large population that
+runs fast. Your challenge is to support one million robots running at
+10 updates per second of real time in a large, sparse world. 
+
+The courses system provides a Subversion (svn) repository for each
+group. See requirement 3 below. Start by committing your initial code
+there ASAP.
+
+You should design, implement, and test your system and describe it in
+a report of 6-10 pages of text *plus* as many pictures and tables as
+you need. Test your system to show the range of parameters in which it
+works well, but also beyond, to show when it starts to slow down or
+fail. Explain what dynamics you see and why they occur.
+
+Very important: Describe in detail the distributed system problems you
+are solving and how you solve them, with proper references to the
+class reading, textbooks, online resources, etc.
+
+Your report should also describe how the work was distributed among
+the team, and the processes you used to get your software engineering
+done (coordination and communication strategies, etc).
+
+Your system should provide a visualization that clearly shows the
+robot's behaviour and any aspects of your distributed system you wish
+to show in the demo. If your system is widely distributed, this part
+can be a significant technical challenge.
+
+In the penultimate week of classes we will agree on parameter sets for
+performance comparisons, and will run these as a contest in the final
+week. There will be informal prizes and the admiration of your peers
+for:
+
+     (1) The fastest 1M robot system
+     (2) The largest population that updates at 10Hz, hopefully > 1M
+     (3) The most beautiful architecture
+     (4) The most beautiful visualization
+
+Deliverables:
+
+1. code in the SVN repository, checked in and tagged "submitted".
+
+2. a report in PDF, submitted to the assignment on the Courses system.
+
+3. a 15 minute demonstration session in CSIL with the instructor
+and/or TA in the last week of classes.
+
+Required:
+
+1. The outcome must be effectively a single simulated world with the
+same behaviour as the original reference code.
+
+2. use three or more computers to generate the simulated world.
+
+3. Use the courses.cs.sfu.ca Subversion (svn) service to develop your
+code. Your commit logs will be inspected to ensure that everyone is
+participating.
+
+Recommended:
+
+1. Use the CSIL computers. Use as many as you wish, but be considerate
+of others particularly towards the end of term.
+
+2. Display detailed information in the visualization for testing,
+debugging and demonstrating. Well-presented data are very reassuring
+to instructors.
+
+3. Report your progress intermediate results in class and on the
+mailing list as a challenge to others. Who can be the first to 100K @
+10Hz, etc, on the way to 1M @ 10Hz?
+
+4. compete in the contest in the last week of class.
+
+5. To start, choose either the original code or a fast and/or clean
+faster implementation from someone in your group.
+
+Allowed:
+
+1. using third party libraries and frameworks, e.g. Redis, 0MQ.
+
+2. multi-threaded code, as long as at least three processes are run on
+three different machines, using threads inside processes is fine.
+
+3. any languages you want, but be careful to meet requirement 1.
+
+Forbidden:
+
+1. sharing your code between groups *UNLESS* discussed with the
+instructor in advance and given specific permission. It may be OK to
+share tools and supporting code, visualization ideas, etc. but check
+with RTV first.
+
+And of course, the obligatory:
+
+2. posting your code online publicly.
+
+3. using code specific to this assignment that you found online.
+
+
+Questions?
+----------
+
+Please ask questions on the courses system forum, and help each other
+out with answers. The instructor and the TA will answer messages with
+a delay, so jump in and help out if you can.
