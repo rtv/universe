@@ -20,7 +20,7 @@ const char* PROGNAME = "universe";
 namespace Uni {
   
   bool need_redraw( true );
-  double worldsize(1.0);
+  int32_t worldsize(1000);
   std::vector<Robot> population( 100 );
   uint64_t updates(0);
   uint64_t updates_max( 0.0 ); 
@@ -33,9 +33,9 @@ namespace Uni {
   double lastseconds; 
 
   // Robot static members
-  unsigned int Robot::pixel_count( 8);
-  double Robot::range( 0.1 );
-  double Robot::fov(  dtor(270.0) );
+  unsigned int Robot::pixel_count(8);
+  int32_t Robot::range( 100 );
+  int32_t Robot::fov(  mdtomr(270000) ); // milliradians
 }
 
 char usage[] = "Universe understands these command line arguments:\n"
@@ -144,18 +144,18 @@ void Uni::Init( int argc, char** argv )
 	break;
 	
       case 's': 
-	worldsize = atof( optarg );
-	if( ! quiet ) printf( "[Uni] worldsize: %.2f\n", worldsize );
+	worldsize = atoi( optarg );
+	if( ! quiet ) printf( "[Uni] worldsize: %d\n", worldsize );
 	break;
 	
       case 'f': 
-	Robot::fov = dtor(atof( optarg )); // degrees to radians
-	if( ! quiet ) printf( "[Uni] fov: %.2f\n", Robot::fov );
+	Robot::fov = mdtomr( 1000 * atoi( optarg )); // degrees to milliradians
+	if( ! quiet ) printf( "[Uni] fov: %d mrad\n", Robot::fov );
 	break;
 	
       case 'r': 
-	Robot::range = atof( optarg );
-	if( ! quiet ) printf( "[Uni] range: %.2f\n", Robot::range );
+	Robot::range = atoi( optarg );
+	if( ! quiet ) printf( "[Uni] range: %d\n", Robot::range );
 	break;
 	
       case 'c':
@@ -218,8 +218,8 @@ void Uni::Init( int argc, char** argv )
   glScalef( 1.0/worldsize, 1.0/worldsize, 1 ); 
   
   // define a display list for a robot body
-  double h = 0.01;
-  double w = 0.01;
+  double h = 10;
+  double w = 10;
 
   glPointSize( 4.0 );
 
@@ -236,7 +236,7 @@ void Uni::Init( int argc, char** argv )
 
   glEndList();
 #endif // GRAPHICS
-
+  
   struct timeval start;
   gettimeofday( &start, NULL );
   lastseconds =  start.tv_sec + start.tv_usec/1e6;
@@ -244,9 +244,8 @@ void Uni::Init( int argc, char** argv )
 
 void Robot::UpdateSensor()
 {
-  double radians_per_pixel = fov / (double)pixel_count;
-  
-  double halfworld = worldsize * 0.5;
+  int32_t mrad_per_pixel = fov / pixel_count;  
+  int32_t halfworld = worldsize / 2;
   
   // initialize pixels vector  
   FOR_EACH( it, pixels )
@@ -267,7 +266,7 @@ void Robot::UpdateSensor()
       // discard if it's out of range. We put off computing the
       // hypotenuse as long as we can, as it's relatively expensive.
       
-      double dx = other->pose[0] - pose[0];
+      int32_t dx = other->pose[0] - pose[0];
       
       // wrap around torus
       if( dx > halfworld )
@@ -278,7 +277,7 @@ void Robot::UpdateSensor()
       if( fabs(dx) > Robot::range )
 	continue; // out of range
       
-      double dy = other->pose[1] - pose[1];
+      int32_t dy = other->pose[1] - pose[1];
       
       // wrap around torus
       if( dy > halfworld )
@@ -289,23 +288,24 @@ void Robot::UpdateSensor()
       if( fabs(dy) > Robot::range )
 	continue; // out of range
       
-      double range = hypot( dx, dy );
+      int32_t range = hypot( dx, dy );
       if( range > Robot::range ) 
 	continue; 
       
       // discard if it's out of field of view 
-      double absolute_heading = atan2( dy, dx );
-      double relative_heading = AngleNormalize((absolute_heading - pose[2]) );
-      if( fabs(relative_heading) > fov/2.0   ) 
+      int32_t absolute_heading = atan2( dy, dx ) * 1000;
+      int32_t relative_heading = AngleNormalize((absolute_heading - pose[2]) );
+      if( abs(relative_heading) > fov/2   ) 
 	continue; 
       
       // find which pixel it falls in 
-      int pixel = floor( relative_heading / radians_per_pixel );
-      pixel += pixel_count / 2;
+      relative_heading += fov/2;
+      uint32_t pixel = relative_heading / mrad_per_pixel;
+      //pixel += pixel_count / 2; 
       pixel %= pixel_count;
       
       assert( pixel >= 0 );
-      assert( pixel < (int)pixel_count );
+      assert( pixel < pixel_count );
       
       // discard if we've seen something closer in this pixel already.
       if( pixels[pixel].range < range) 
@@ -320,9 +320,9 @@ void Robot::UpdateSensor()
 void Robot::UpdatePose()
 {
   // move according to the current speed 
-  double dx = speed[0] * cos(pose[2]);
-  double dy = speed[0] * sin(pose[2]);; 
-  double da = speed[1];
+  int32_t dx = speed[0] * cos(pose[2]/1000.0);
+  int32_t dy = speed[0] * sin(pose[2]/1000.0); 
+  int32_t da = speed[1];
   
   pose[0] = DistanceNormalize( pose[0] + dx );
   pose[1] = DistanceNormalize( pose[1] + dy );
@@ -336,13 +336,13 @@ void Uni::UpdateAll()
     exit(1);
   
   if( ! paused )
-    {
+    {   
       FOR_EACH( r, population )
 	r->UpdatePose();
       
       FOR_EACH( r, population )
 	r->UpdateSensor();
-      
+     
       FOR_EACH( r, population )
 	{
 	  Robot &b = *r;
@@ -375,7 +375,7 @@ void Robot::Draw() const
 #if GRAPHICS
   glPushMatrix();
   glTranslatef( pose[0], pose[1], 0 );
-  glRotatef( rtod(pose[2]), 0,0,1 );
+  glRotatef( mrtomd(pose[2])/1000.0, 0,0,1 );
   
   glColor3ub( color[0], color[1], color[2] ); 
   
@@ -385,16 +385,16 @@ void Robot::Draw() const
   if( show_data )
     {
       // render the sensors
-      double rads_per_pixel = fov / (double)pixel_count;
+      double rad_per_pixel = (fov/1000.0) / pixel_count;
       glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
       
       for( unsigned int p=0; p<pixel_count; p++ )
 	{
-	  double angle = -fov/2.0 + (p+0.5) * rads_per_pixel;
-	  double dx1 = pixels[p].range * cos(angle+rads_per_pixel/2.0);
-	  double dy1 = pixels[p].range * sin(angle+rads_per_pixel/2.0);
-	  double dx2 = pixels[p].range * cos(angle-rads_per_pixel/2.0);
-	  double dy2 = pixels[p].range * sin(angle-rads_per_pixel/2.0);
+	  double angle = -(fov/1000.0)/2.0 + (p+0.5) * rad_per_pixel;
+	  double dx1 = pixels[p].range * cos(angle+rad_per_pixel/2.0);
+	  double dy1 = pixels[p].range * sin(angle+rad_per_pixel/2.0);
+	  double dx2 = pixels[p].range * cos(angle-rad_per_pixel/2.0);
+	  double dy2 = pixels[p].range * sin(angle-rad_per_pixel/2.0);
 	  
 	  glColor4f( 1,0,0, pixels[p].robot ? 0.2 : 0.05 );
 	  
@@ -409,6 +409,10 @@ void Robot::Draw() const
   glPopMatrix();
 #endif // GRAPHICS
 }
+
+
+
+
 
 void Uni::Run()
 {

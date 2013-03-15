@@ -11,12 +11,12 @@ static bool invert = false;
 // Examine the robot's pixels vector and set the speed sensibly.
 void Controller( Uni::Robot& r, void* dummy_data )
 { 
-  r.speed[0] = 0.005;   // constant forward speed 
-  r.speed[1] = 0.0;     // no turning. we may change this below
-  
+  r.speed[0] = 5;   // constant forward speed 
+  r.speed[1] = 0;     // no turning. we may change this below
+    
   // steer away from the closest roboot
   int closest = -1;
-  double dist = r.range; // max sensor range
+  int32_t dist = r.range; // max sensor range
   
   const size_t pixel_count = r.pixels.size();
   for( unsigned int p=0; p<pixel_count; p++ )
@@ -30,12 +30,12 @@ void Controller( Uni::Robot& r, void* dummy_data )
     return;
   
   if( closest < (int)pixel_count / 2 )
-    r.speed[1] = 0.04; // rotate right
+    r.speed[1] = 40; // rotate right
   else
-    r.speed[1] = -0.04; // rotate left
+    r.speed[1] = -40; // rotate left
   
   if( invert )
-    r.speed[1] *= -1.0; // invert turn direction	
+    r.speed[1] *= -1; // invert turn direction	
 }
 
 int main( int argc, char* argv[] )

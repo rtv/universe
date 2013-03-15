@@ -6,6 +6,8 @@
 ****/
 
 #include <vector>
+#include <queue>
+#include <string>
 #include <math.h> 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +19,7 @@
 #define VAR(V,init) __typeof(init) V=(init)
 #define FOR_EACH(I,C) for(VAR(I,(C).begin());I!=(C).end();I++)
 
+const int32_t THOUSANDPI = 3142; // ceil( M_PI * 1000 )
 
 namespace Uni
 {
@@ -34,25 +37,25 @@ namespace Uni
   
   extern uint64_t updates; // number of simulation steps so far	 
   extern uint64_t updates_max; // number of steps to run before quitting (0 means infinity)
-  extern double worldsize; // side length of the toroidal world
+  extern int32_t worldsize; // side length of the toroidal world
   
   class Robot
   {
   public:
     // static data members (same for all instances)
-    static double range;      // sensor detects objects up tp this maximum distance
-    static double fov;        // sensor detects objects within this angular field-of-view     
+    static int32_t range;      // sensor detects objects up tp this maximum distance
+    static int32_t fov;        // sensor detects objects within this angular field-of-view (in milliradians)    
     static unsigned int  pixel_count; // number of pixels in sensor array
     
     // non-static data members
-    double pose[3] ;   // 2d pose and orientation [0]=x, [1]=y, [2]=a;
-    double speed[2];   // linear speed [0] and angular speed [1]
+    int32_t pose[3] ;   // 2d pose and orientation [0]=x, [1]=y, [2]=a;
+    int32_t speed[2];   // linear speed [0] in units per timestep and angular speed [1] in milliradians per timestep
     uint8_t color[3];  // body color [0]=red, [1]=green, [2]=blue;
 
     class Pixel 
     {
     public:
-      double range; // between zero and Robot::range
+      int32_t range; // between zero and Robot::range
       Robot* robot; // closest robot detected or NULL if nothing detected
     };
     
@@ -83,34 +86,38 @@ namespace Uni
   // utilities
   
   /** Normalize a length to within 0 to worldsize. */
-  inline double DistanceNormalize( double d )
+  inline int32_t DistanceNormalize( int32_t d )
   {
     while( d < 0 ) d += worldsize;
     while( d > worldsize ) d -= worldsize;
     return d; 
   } 
   
-  /** Normalize an angle to within +/_ M_PI. */
-  inline double AngleNormalize( double a )
+  /** Normalize an angle to within +/_ THOUSANDPI. */
+  inline int32_t AngleNormalize( int32_t a )
   {
-    while( a < -M_PI ) a += 2.0*M_PI;
-    while( a >  M_PI ) a -= 2.0*M_PI;	 
+    while( a < -THOUSANDPI ) a += 2.0*THOUSANDPI;
+    while( a >  THOUSANDPI ) a -= 2.0*THOUSANDPI;	 
     return a;
   }	 
   
   /** Convert radians to degrees. */
-  inline double rtod( double r )
-  { return( r * 180.0 / M_PI ); }
+  inline int32_t mrtomd( int32_t mr )
+  { return( mr * 180000 / THOUSANDPI ); }
   
   /** Convert degrees to radians */
-  inline double dtor( double d)
-  { return( d * M_PI / 180.0 ); }
+  inline int32_t mdtomr( int32_t d)
+  { return( d * THOUSANDPI / 180000); }
   
-  inline void RandomPose( double pose[3] )
+  inline void RandomPose( int32_t pose[3] )
   {
     pose[0] = drand48() * worldsize;
     pose[1] = drand48() * worldsize;
-    pose[2] = AngleNormalize( drand48() * (M_PI*2.0));
+    pose[2] = AngleNormalize( drand48() * (THOUSANDPI*2.0));
   }    
+    
+    void Update();
+    
+    void Draw( void );
   
 }; // namespace Uni
