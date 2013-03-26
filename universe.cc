@@ -244,8 +244,8 @@ void Uni::Init( int argc, char** argv )
 
 void Robot::UpdateSensor()
 {
-  int32_t mrad_per_pixel = fov / pixel_count;  
-  int32_t halfworld = worldsize / 2;
+  const int32_t mrad_per_pixel = fov / pixel_count;  
+  const int32_t halfworld = worldsize / 2;
   
   // initialize pixels vector  
   FOR_EACH( it, pixels )
@@ -293,16 +293,14 @@ void Robot::UpdateSensor()
 	continue; 
       
       // discard if it's out of field of view 
-      int32_t absolute_heading = atan2( dy, dx ) * 1000;
+      const int32_t absolute_heading = atan2( dy, dx ) * 1000;
       int32_t relative_heading = AngleNormalize((absolute_heading - pose[2]) );
       if( abs(relative_heading) > fov/2   ) 
 	continue; 
       
       // find which pixel it falls in 
-      relative_heading += fov/2;
-      uint32_t pixel = relative_heading / mrad_per_pixel;
-      //pixel += pixel_count / 2; 
-      pixel %= pixel_count;
+      relative_heading += fov/2; 
+      const uint32_t pixel = (relative_heading / mrad_per_pixel) % pixel_count;
       
       assert( pixel >= 0 );
       assert( pixel < pixel_count );
@@ -320,9 +318,9 @@ void Robot::UpdateSensor()
 void Robot::UpdatePose()
 {
   // move according to the current speed 
-  int32_t dx = speed[0] * cos(pose[2]/1000.0);
-  int32_t dy = speed[0] * sin(pose[2]/1000.0); 
-  int32_t da = speed[1];
+  const int32_t dx = speed[0] * cos(pose[2]/1000.0);
+  const int32_t dy = speed[0] * sin(pose[2]/1000.0); 
+  const int32_t da = speed[1];
   
   pose[0] = DistanceNormalize( pose[0] + dx );
   pose[1] = DistanceNormalize( pose[1] + dy );
