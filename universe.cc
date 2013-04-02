@@ -139,47 +139,47 @@ void Uni::Init( int argc, char** argv )
       {
       case 'p': 
 	population_size = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] population_size: %d\n", population_size );
+	if( ! quiet ) fprintf( stderr, "[Uni] population_size: %d\n", population_size );
 	population.resize( population_size );
 	break;
 	
       case 's': 
 	worldsize = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] worldsize: %d\n", worldsize );
+	if( ! quiet ) fprintf( stderr, "[Uni] worldsize: %d\n", worldsize );
 	break;
 	
       case 'f': 
 	Robot::fov = mdtomr( 1000 * atoi( optarg )); // degrees to milliradians
-	if( ! quiet ) printf( "[Uni] fov: %d mrad\n", Robot::fov );
+	if( ! quiet ) fprintf( stderr, "[Uni] fov: %d mrad\n", Robot::fov );
 	break;
 	
       case 'r': 
 	Robot::range = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] range: %d\n", Robot::range );
+	if( ! quiet ) fprintf( stderr, "[Uni] range: %d\n", Robot::range );
 	break;
 	
       case 'c':
 	Robot::pixel_count = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] pixel_count: %d\n", Robot::pixel_count );
+	if( ! quiet ) fprintf( stderr, "[Uni] pixel_count: %d\n", Robot::pixel_count );
 	break;
 				
       case 'u':
 	updates_max = atol( optarg );
-	if( ! quiet ) printf( "[Uni] updates_max: %lu\n", (long unsigned)updates_max );
+	if( ! quiet ) fprintf( stderr, "[Uni] updates_max: %lu\n", (long unsigned)updates_max );
 	break;
 				
       case 'z':
 	sleep_msec = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] sleep_msec: %d\n", sleep_msec );
+	if( ! quiet ) fprintf( stderr, "[Uni] sleep_msec: %d\n", sleep_msec );
 	break;
 				
 #if GRAPHICS
       case 'w': winsize = atoi( optarg );
-	if( ! quiet ) printf( "[Uni] winsize: %d\n", winsize );
+	if( ! quiet ) fprintf( stderr, "[Uni] winsize: %d\n", winsize );
 	break;
 
       case 'd': show_data= false;
-	if( ! quiet ) puts( "[Uni] hide data" );
+	if( ! quiet ) fprintf( stderr, "[Uni] hide data\n" );
 	break;
 
       case 'q': quiet = true;
@@ -331,7 +331,11 @@ void Uni::UpdateAll()
 {
   // if we've done enough updates, exit the program
   if( updates_max > 0 && updates > updates_max )
-    exit(1);
+    {
+      FOR_EACH( it, population )
+	printf( "%d,%d,%d\n", it->pose[0], it->pose[1], it->pose[2] );
+      exit(1);
+    }
   
   if( ! paused )
     {   
@@ -358,7 +362,7 @@ void Uni::UpdateAll()
       gettimeofday( &now, NULL );
       double seconds = now.tv_sec + now.tv_usec/1e6;
       double interval = seconds - lastseconds;
-      printf( "[%d] FPS %.3f\r",(int)updates, period/interval );      
+      fprintf( stderr, "[%d] FPS %.3f\r",(int)updates, period/interval );      
       fflush(stdout);
       lastseconds = seconds;      
     }
