@@ -43,12 +43,12 @@ namespace Uni
   {
   public:
     // static data members (same for all instances)
-    static int32_t range;      // sensor detects objects up tp this maximum distance
+    static int32_t range;      // sensor detects objects up to this maximum distance
     static int32_t fov;        // sensor detects objects within this angular field-of-view (in milliradians)    
     static unsigned int  pixel_count; // number of pixels in sensor array
     
     // non-static data members
-    int32_t pose[3] ;   // 2d pose and orientation [0]=x, [1]=y, [2]=a;
+    int32_t pose[3] ;   // 2d pose and orientation [0]=x, [1]=y, [2]=angle in milliradians;
     int32_t speed[2];   // linear speed [0] in units per timestep and angular speed [1] in milliradians per timestep
     uint8_t color[3];  // body color [0]=red, [1]=green, [2]=blue;
 
@@ -101,11 +101,11 @@ namespace Uni
     return a;
   }	 
   
-  /** Convert radians to degrees. */
+  /** Convert milliradians to degrees. */
   inline int32_t mrtomd( int32_t mr )
   { return( mr * 180000 / THOUSANDPI ); }
   
-  /** Convert degrees to radians */
+  /** Convert degrees to milliradians */
   inline int32_t mdtomr( int32_t d)
   { return( d * THOUSANDPI / 180000); }
   
